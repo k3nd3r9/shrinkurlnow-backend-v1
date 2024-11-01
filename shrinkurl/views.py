@@ -8,6 +8,7 @@ def insert_or_retrieve_url(request):
         shorturl = generate_short_hash(longurl)
         newUrlPair = URLPair.objects.create(long_url = longurl, short_url = shorturl)
         return HttpResponse(shorturl)
+    #check if get request is empty before processing
     elif request.method == "GET" and 'q' in request.GET:
         q = request.GET['q']
         if q is not None and q != '':

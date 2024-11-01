@@ -2,6 +2,8 @@ from django.urls import path
 
 from . import views
 
+#endpoint for shrinkurl
+
 urlpatterns = [
-    path("shrinkurl/", views.insert_or_retrieve_url, name="shrinkurl"),
+    path("api/", views.insert_or_retrieve_url),
 ]

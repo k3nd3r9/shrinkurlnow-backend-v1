@@ -22,16 +22,17 @@ class TestApiEndPoint(TestCase):
     #this will test that get and post requests return proper data
     def test_returns_response(self):
         client = Client()
-        url = "/shrinkurl/"
+        url = "/api/"
         longdata = {"longurl": "https://www.hotels.com/Hotel-Search?destination=United%20States%20of%20America&regionId=201&latLong=37.090241%2C-95.712891&rooms=1&adults=2&startDate=2024-11-14&d1=2024-11-14&endDate=2024-11-16&d2=2024-11-16&lodging=CABIN&sort=RECOMMENDED&useRewards=false&semdtl=&userIntent=&theme="}
 
         #Test POST request
-        postresponse = client.post('/shrinkurl/', longdata)
+        postresponse = client.post(url, longdata)
         self.assertEqual(postresponse.status_code, 200)
         self.assertEqual(len(postresponse.content), 6)
 
         #Test GET request
-        shortdata = {'shorturl': postresponse.content}
-        getresponse = client.get(url, shortdata)
+        newshorturl = postresponse.content.decode('UTF-8')
+        shortdata = {'shorturl': newshorturl}
+        getresponse = client.get(url + "q=", shortdata)
         self.assertEqual(postresponse.status_code, 200)
         self.assertTrue(len(getresponse.content) > 6)
