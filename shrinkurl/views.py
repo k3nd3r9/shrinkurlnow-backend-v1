@@ -5,16 +5,28 @@ import hashlib
 def insert_or_retrieve_url(request):
     if request.method == "POST":
         longurl = request.POST['longurl']
-        shorturl = generate_short_hash(longurl)
-        newUrlPair = URLPair.objects.create(long_url = longurl, short_url = shorturl)
-        return HttpResponse(shorturl)
+
+        if(longurl != ''):
+            shorturl = generate_short_hash(longurl)
+            newUrlPair = URLPair.objects.create(long_url = longurl, short_url = shorturl)
+            return HttpResponse(shorturl)
+        else:
+            return HttpResponse(status=204)
+
     #check if get request is empty before processing
     elif request.method == "GET" and 'q' in request.GET:
         q = request.GET['q']
         if q is not None and q != '':
             shorturl = request.GET['shorturl']
             foundURLPair = URLPair.objects.filter(short_url = shorturl).get()
-            return HttpResponse(foundURLPair.long_url)
+
+            if(foundURLPair.exists()):
+                return HttpResponse(foundURLPair.long_url)
+            else:
+                return HttpResponse(status=404)
+        else:
+            return HttpResponse(status=204)
+
 
 def generate_short_hash(data):
     #Generates a short hash from the given data.
