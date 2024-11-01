@@ -8,10 +8,12 @@ def insert_or_retrieve_url(request):
         shorturl = generate_short_hash(longurl)
         newUrlPair = URLPair.objects.create(long_url = longurl, short_url = shorturl)
         return HttpResponse(shorturl)
-    elif request.method == "GET":
-        shorturl = request.GET['shorturl']
-        foundURLPair = URLPair.objects.filter(short_url = shorturl).get()
-        return HttpResponse(foundURLPair.long_url)
+    elif request.method == "GET" and 'q' in request.GET:
+        q = request.GET['q']
+        if q is not None and q != '':
+            shorturl = request.GET['shorturl']
+            foundURLPair = URLPair.objects.filter(short_url = shorturl).get()
+            return HttpResponse(foundURLPair.long_url)
 
 def generate_short_hash(data):
     #Generates a short hash from the given data.
