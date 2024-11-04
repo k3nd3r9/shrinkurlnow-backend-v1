@@ -6,8 +6,12 @@ from django.views.decorators.csrf import csrf_protect
 @csrf_protect
 def insert_or_retrieve_url(request):
     if request.method == "POST":
-        longurl = request.POST['longurl']
 
+        if 'longurl' in request.POST:
+            longurl = request.POST['longurl']
+        else:
+            return HttpResponse(status=204)
+        
         if(longurl == ''):
             return HttpResponse(status=204)
 
@@ -20,9 +24,10 @@ def insert_or_retrieve_url(request):
 
     #check if get request is empty before processing
     elif request.method == "GET":
-        shorturl = request.GET['shorturl']
 
-        if(shorturl == ''):
+        if 'shorturl' in request.GET:
+            shorturl = request.GET['shorturl']
+        else:
             return HttpResponse(status=204) 
 
         if not (URLPair.objects.filter(short_url = shorturl).exists()):
