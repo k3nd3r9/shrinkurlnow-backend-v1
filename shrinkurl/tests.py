@@ -33,6 +33,6 @@ class TestApiEndPoint(TestCase):
         #Test GET request
         newshorturl = postresponse.content.decode('UTF-8')
         shortdata = {'shorturl': newshorturl}
-        getresponse = client.get(url + "q=", shortdata)
+        getresponse = client.get(url, shortdata)
         self.assertEqual(postresponse.status_code, 200)
         self.assertTrue(len(getresponse.content) > 6)

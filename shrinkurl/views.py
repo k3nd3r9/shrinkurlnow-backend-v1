@@ -1,32 +1,41 @@
 from django.http import HttpResponse
 from .models import URLPair
 import hashlib
+from django.views.decorators.csrf import csrf_protect
 
+@csrf_protect
 def insert_or_retrieve_url(request):
     if request.method == "POST":
-        longurl = request.POST['longurl']
 
-        if(longurl != ''):
-            shorturl = generate_short_hash(longurl)
-            newUrlPair = URLPair.objects.create(long_url = longurl, short_url = shorturl)
-            return HttpResponse(shorturl)
+        if 'longurl' in request.POST:
+            longurl = request.POST['longurl']
         else:
             return HttpResponse(status=204)
+        
+        if(longurl == ''):
+            return HttpResponse(status=204)
+
+        #generate short url hash
+        shorturl = generate_short_hash(longurl)
+
+        #insert into database
+        newUrlPair = URLPair.objects.create(long_url = longurl, short_url = shorturl)
+        return HttpResponse(shorturl)
 
     #check if get request is empty before processing
-    elif request.method == "GET" and 'q' in request.GET:
-        q = request.GET['q']
-        if q is not None and q != '':
+    elif request.method == "GET":
+
+        if 'shorturl' in request.GET:
             shorturl = request.GET['shorturl']
-            foundURLPair = URLPair.objects.filter(short_url = shorturl).get()
-
-            if(foundURLPair.exists()):
-                return HttpResponse(foundURLPair.long_url)
-            else:
-                return HttpResponse(status=404)
         else:
-            return HttpResponse(status=204)
+            return HttpResponse(status=204) 
 
+        if not (URLPair.objects.filter(short_url = shorturl).exists()):
+            return HttpResponse(status=404)
+
+        #retrieve the long url based on the short url
+        foundURLPair = URLPair.objects.filter(short_url = shorturl).get()
+        return HttpResponse(foundURLPair.long_url)
 
 def generate_short_hash(data):
     #Generates a short hash from the given data.
@@ -37,3 +46,4 @@ def generate_short_hash(data):
 
     # Take the first 6 characters for a short hash
     return hex_digest[:6]
+
